@@ -1,21 +1,32 @@
 import Link from "next/link";
 import React, { FC, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import { createUserRequest } from "../../store/actions/authAction";
+import { RootState } from "../../store/reducers/rootReducer";
 
-type FormValues = {
+type User = {
   email: string;
   password: string;
 };
 
-const SignIn: FC = () => {
+const SignUp: FC = () => {
   const [isShown, setIsShown] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const { pending, error } = useSelector((state: RootState) => state.auth);
+
+  const dispatch = useDispatch();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormValues>();
+  } = useForm<User>();
 
-  const onSubmit: SubmitHandler<FormValues> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<User> = () => {
+    dispatch(createUserRequest());
+  };
 
   return (
     <section className="signin">
@@ -29,30 +40,33 @@ const SignIn: FC = () => {
             />
           </div>
           <div className="col m-2">
+            {error ? (
+              <div className="alert alert-danger" role="alert">
+                {error}
+              </div>
+            ) : (
+              <></>
+            )}
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="mb-3">
-                <label htmlFor="exampleInputEmail1" className="form-label">
-                  Email address
+                <label htmlFor="exampleInputPassword2" className="form-label">
+                  Password
                 </label>
-                <input
-                  type="email"
-                  className="form-control"
-                  id="exampleInputEmail1"
-                  aria-describedby="emailHelp"
-                  {...register("email", {
-                    required: {
-                      value: true,
-                      message: "Email is required",
-                    },
-                    pattern: {
-                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: "Invalid email address",
-                    },
-                  })}
-                />
-                {errors.email && (
-                  <span className="text-danger">{errors.email.message} </span>
-                )}
+                <div className="input-group mb-3">
+                  <input
+                    type="email"
+                    className="form-control"
+                    id="exampleInputPassword2"
+                    {...register("email", {
+                      required: {
+                        value: true,
+                        message: "Email is required",
+                      },
+                    })}
+                    onChange={(e) => setEmail(e.target.value)}
+                    value={email}
+                  />
+                </div>
               </div>
 
               <label htmlFor="exampleInputPassword1" className="form-label">
@@ -69,10 +83,12 @@ const SignIn: FC = () => {
                       message: "Password is required",
                     },
                     minLength: {
-                      value: 8,
-                      message: "Password must have at least 8 characters",
+                      value: 6,
+                      message: "Password must have at least 6 characters",
                     },
                   })}
+                  onChange={(e) => setPassword(e.target.value)}
+                  value={password}
                 />
                 <span className="input-group-text">
                   {isShown ? (
@@ -93,12 +109,24 @@ const SignIn: FC = () => {
                   <span className="text-danger">{errors.password.message}</span>
                 )}
               </div>
-              <button
-                type="submit"
-                className="btn btn-primary bg-dark border-0"
-              >
-                Submit
-              </button>
+              {pending ? (
+                <button
+                  type="submit"
+                  className="btn btn-primary bg-dark border-0"
+                >
+                  <div
+                    className="spinner-border text-light"
+                    role="status"
+                  ></div>
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  className="btn btn-primary bg-dark border-0"
+                >
+                  Submit
+                </button>
+              )}
             </form>
           </div>
         </div>
@@ -107,4 +135,4 @@ const SignIn: FC = () => {
   );
 };
 
-export default SignIn;
+export default SignUp;

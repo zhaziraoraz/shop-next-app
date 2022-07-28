@@ -32,7 +32,7 @@ const Header: FC = () => {
               </span>
             </i>
           </Link>
-          <Link href="/signin">
+          <Link href="/signup">
             <button className="btn btn-primary bg-dark border-0" type="submit">
               Login
             </button>
